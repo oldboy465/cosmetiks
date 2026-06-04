@@ -18,7 +18,7 @@ CAMINHO_PLANILHA = r"C:\Users\noteboy\Desktop\add_product.xlsx"
 def rodar_importacao():
     app = create_app()
     with app.app_context():
-        print(f" Letura iniciada da planilha: {CAMINHO_PLANILHA}")
+        print(f" Leitura iniciada da planilha atualizada: {CAMINHO_PLANILHA}")
         
         if not os.path.exists(CAMINHO_PLANILHA):
             print(f"❌ Erro crítico: O arquivo não foi localizado em {CAMINHO_PLANILHA}")
@@ -31,7 +31,7 @@ def rodar_importacao():
             print(f"❌ Falha ao abrir o arquivo Excel: {str(e)}")
             return
 
-        # 1. Garantir a existência de ao menos um fornecedor para o revendedor (Requisito de Chave Estrangeira)
+        # Garantir a existência de ao menos um fornecedor para o revendedor (Requisito de Chave Estrangeira)
         fornecedor_padrao = Fornecedor.query.filter_by(revendedor_id=REVENDEDOR_ID).first()
         if not fornecedor_padrao:
             fornecedor_padrao = Fornecedor(
@@ -44,7 +44,7 @@ def rodar_importacao():
             print(" Fornecedor operacional padrão estabelecido com sucesso.")
 
         produtos_inseridos = 0
-        produtos_ignorados = 0
+        produtos_atualizados = 0
 
         # Iteração a partir da linha 2 (pulando os cabeçalhos textuais)
         for row in range(2, ws.max_row + 1):
@@ -56,17 +56,31 @@ def rodar_importacao():
             data_compra_raw = ws.cell(row=row, column=6).value
             marca_raw = ws.cell(row=row, column=7).value
 
-            # Ignora linhas complementares vazias
+            # Ignora linhas complementares inteiramente vazias
             if not nome_produto:
                 continue
 
             # Sanitização e normalização das strings coletadas
             nome_produto = str(nome_produto).strip()
             codigo_barras = str(codigo_barras_raw).strip() if codigo_barras_raw and str(codigo_barras_raw).strip() != "0" else None
-            categoria_nome = str(categoria_raw).strip() if categoria_raw else "A definir"
-            marca_nome = str(marca_raw).strip() if marca_raw else "A definir"
+            categoria_nome = str(categoria_raw).strip() if categoria_raw and str(categoria_raw).strip() != "A definir" else "Geral"
+            marca_nome = str(marca_raw).strip() if marca_raw and str(marca_raw).strip() != "A definir" else "Geral"
 
-            # Evita duplicação conferindo se o produto já existe pelo Nome ou Código de Barras
+            # 1. Resolução ou criação dinâmica de Categoria
+            categoria = Categoria.query.filter_by(revendedor_id=REVENDEDOR_ID, nome=categoria_nome).first()
+            if not categoria:
+                categoria = Categoria(revendedor_id=REVENDEDOR_ID, nome=categoria_nome)
+                db.session.add(categoria)
+                db.session.commit()
+
+            # 2. Resolução ou criação dinâmica de Marca
+            marca = Marca.query.filter_by(revendedor_id=REVENDEDOR_ID, nome=marca_nome).first()
+            if not marca:
+                marca = Marca(revendedor_id=REVENDEDOR_ID, nome=marca_nome)
+                db.session.add(marca)
+                db.session.commit()
+
+            # 3. Pesquisa de duplicidade para saber se o produto já existe na base
             produto_existente = None
             if codigo_barras:
                 produto_existente = Produto.query.filter_by(revendedor_id=REVENDEDOR_ID, codigo_barras=codigo_barras).first()
@@ -74,24 +88,18 @@ def rodar_importacao():
                 produto_existente = Produto.query.filter_by(revendedor_id=REVENDEDOR_ID, nome=nome_produto).first()
 
             if produto_existente:
-                produtos_ignorados += 1
+                # LÓGICA ATUALIZADA: Se o produto já existe, conserta a Marca e a Categoria dele
+                produto_existente.marca_id = marca.id
+                produto_existente.categoria_id = categoria.id
+                
+                # Aproveita para certificar que o código de barras correto esteja salvo
+                if codigo_barras and not produto_existente.codigo_barras:
+                    produto_existente.codigo_barras = codigo_barras
+                
+                produtos_atualizados += 1
                 continue
 
-            # 2. Resolução ou criação dinâmica de Categoria
-            categoria = Categoria.query.filter_by(revendedor_id=REVENDEDOR_ID, nome=categoria_nome).first()
-            if not categoria:
-                categoria = Categoria(revendedor_id=REVENDEDOR_ID, nome=categoria_nome)
-                db.session.add(categoria)
-                db.session.commit()
-
-            # 3. Resolução ou criação dinâmica de Marca
-            marca = Marca.query.filter_by(revendedor_id=REVENDEDOR_ID, nome=marca_nome).first()
-            if not marca:
-                marca = Marca(revendedor_id=REVENDEDOR_ID, nome=marca_nome)
-                db.session.add(marca)
-                db.session.commit()
-
-            # 4. Parsing seguro dos campos numéricos e monetários
+            # 4. Parsing seguro dos campos numéricos e monetários para novos produtos
             try:
                 preco_custo = Decimal(str(preco_custo_raw or 0.00))
                 preco_venda = Decimal(str(preco_venda_raw or 0.00))
@@ -118,8 +126,8 @@ def rodar_importacao():
                 fornecedor_id=fornecedor_padrao.id,
                 nome=nome_produto,
                 codigo_barras=codigo_barras,
-                quantidade_estoque=0, # Inicia zerado; as entradas dão-se por fluxo de movimentação histórica
-                estoque_minimo=3,     # Margem padrão de giro mínimo de segurança
+                quantidade_estoque=0, 
+                estoque_minimo=3,     
                 preco_custo=preco_custo,
                 preco_venda=preco_venda,
                 data_compra=data_compra,
@@ -130,9 +138,9 @@ def rodar_importacao():
 
         db.session.commit()
         print("\n=======================================================")
-        print("  PROCESSAMENTO DE INJEÇÃO EM LOTE CONCLUÍDO!")
+        print("  PROCESSAMENTO DE IMPORTAÇÃO E AJUSTE DE MARCAS CONCLUÍDO!")
         print(f"  Produtos novos inseridos com sucesso: {produtos_inseridos}")
-        print(f"  Produtos pulados por duplicidade: {produtos_ignorados}")
+        print(f"  Produtos antigos mapeados e corrigidos com a nova Marca: {produtos_atualizados}")
         print("=======================================================\n")
 
 if __name__ == '__main__':

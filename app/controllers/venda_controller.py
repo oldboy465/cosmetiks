@@ -37,10 +37,10 @@ def nova():
         desconto_valor = request.form.get('desconto_valor') or 0
         desconto_percentual = request.form.get('desconto_percentual') or 0
         qtd_parcelas = request.form.get('quantidade_parcelas') or 1
+        data_venda_form = request.form.get('data_venda')
         
         produtos_json = request.form.get('produtos_json')
         try:
-            # Correção operacional da verificação do JSON de itens
             produtos_lista = json.loads(produtos_json) if produtos_json else []
             venda_service.criar_venda(
                 revendedor_id=revendedor_id,
@@ -50,7 +50,8 @@ def nova():
                 desconto_percentual=desconto_percentual,
                 forma_pagamento=forma_pagamento,
                 situacao=situacao,
-                qtd_parcelas=qtd_parcelas
+                qtd_parcelas=qtd_parcelas,
+                data_venda_escolhida=data_venda_form
             )
             flash('Operação de venda processada e estoque movimentado.', 'success')
             return redirect(url_for('venda.index'))
@@ -59,7 +60,7 @@ def nova():
 
     clientes = cliente_service.listar_todos(revendedor_id)
     produtos = produto_service.listar_todos(revendedor_id)
-    return render_template('vendas/form.html', venda=None, clientes=clientes, produtos=produtos)
+    return render_template('vendas/form.html', venda=None, clientes=clientes, whitespaces=None, produtos=produtos)
 
 @venda_bp.route('/detalhes/<int:id_venda>')
 @revendedor_required

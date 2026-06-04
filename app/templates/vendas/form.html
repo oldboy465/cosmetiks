@@ -8,45 +8,30 @@
     </div>
 </div>
 
-<div class="dashboard-row" style="grid-template-columns: 1fr 1fr;">
+<div class="dashboard-row" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 25px;">
+    
     <div class="form-container">
-        <div style="font-weight: 700; margin-bottom: 15px; color: var(--primary-color);">1. Adicionar Produtos</div>
-        <div class="form-grid" style="grid-template-columns: 2fr 1fr;">
-            <div class="form-group">
-                <label class="form-label">Produto</label>
-                <select id="select-produto" class="form-control">
-                    <option value="">Selecione um item do catálogo...</option>
-                    {% for p in produtos %}
-                        {% if p.situacao == 'Ativo' %}
-                        <option value="{{ p.id }}" data-nome="{{ p.nome }}" data-preco="{{ p.preco_venda }}" data-estoque="{{ p.quantidade_estoque }}">
-                            {{ p.nome }} (Dispo: {{ p.quantidade_estoque }} un) - R$ {{ "%.2f"|format(p.preco_venda) }}
-                        </option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Qtd</label>
-                <input type="number" id="input-quantidade" class="form-control" min="1" value="1">
-            </div>
-        </div>
-        <button type="button" id="btn-adicionar-produto" class="btn btn-success" style="width: 100%; margin-top: 15px;">Inserir no Carrinho</button>
-
-        <div style="font-weight: 700; margin-bottom: 15px; margin-top: 30px; color: var(--primary-color);">2. Fechamento Comercial</div>
+        <div style="font-weight: 700; margin-bottom: 20px; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">1. Fechamento Comercial</div>
         <form action="{{ url_for('venda.nova') }}" method="POST">
             <input type="hidden" name="produtos_json" id="produtos_json" value="[]">
             
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label class="form-label">Cliente</label>
-                <select name="cliente_id" class="form-control" required>
-                    <option value="">Selecione o comprador...</option>
-                    {% for c in clientes %}
-                    <option value="{{ c.id }}">{{ c.nome }}</option>
-                    {% endfor %}
-                </select>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label class="form-label">Cliente</label>
+                    <select name="cliente_id" class="form-control" required>
+                        <option value="">Selecione o comprador...</option>
+                        {% for c in clientes %}
+                        <option value="{{ c.id }}">{{ c.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
 
-            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                <div class="form-group">
+                    <label class="form-label">Data da Venda</label>
+                    <input type="date" name="data_venda" id="data_venda" class="form-control" required>
+                </div>
                 <div class="form-group">
                     <label class="form-label">Forma de Pagamento</label>
                     <select name="forma_pagamento" class="form-control" required>
@@ -57,6 +42,9 @@
                         <option value="Brinde">Brinde (Amostra)</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
                 <div class="form-group">
                     <label class="form-label">Situação Inicial</label>
                     <select name="situacao" class="form-control" required>
@@ -65,9 +53,13 @@
                         <option value="Pago">Pago à Vista</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Dividir em Parcelas</label>
+                    <input type="number" name="quantidade_parcelas" id="quantidade_parcelas" class="form-control" min="1" value="1" required>
+                </div>
             </div>
 
-            <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-top: 15px;">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
                 <div class="form-group">
                     <label class="form-label">Desconto Nominal (R$)</label>
                     <input type="number" step="0.01" name="desconto_valor" id="desconto_valor" class="form-control" value="0.00">
@@ -78,43 +70,68 @@
                 </div>
             </div>
 
-            <div class="form-group" style="margin-top: 15px;">
-                <label class="form-label">Dividir em quantas Parcelas?</label>
-                <input type="number" name="quantidade_parcelas" class="form-control" min="1" value="1" required>
-            </div>
+            <div id="render-preview-parcelas" style="margin-top: 20px; padding: 15px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; font-size: 13px; display: none;"></div>
 
-            <div class="form-actions" style="margin-top: 25px;">
-                <a href="{{ url_for('venda.index') }}" class="btn btn-danger" style="background: #ccc; color: #333;">Cancelar</a>
+            <div class="form-actions" style="margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <a href="{{ url_for('venda.index') }}" class="btn btn-danger" style="background: #e2e8f0; color: #475569;">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Concluir Venda</button>
             </div>
         </form>
     </div>
 
-    <div class="data-table-container">
-        <div style="font-weight: 700; margin-bottom: 15px;">Itens Selecionados</div>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Produto</th>
-                    <th>Qtd</th>
-                    <th>Unitário</th>
-                    <th>Subtotal</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
-            <tbody id="tbody-carrinho">
-                <tr>
-                    <td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum cosmético no carrinho.</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="form-container" style="height: fit-content;">
+        <div style="font-weight: 700; margin-bottom: 20px; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">2. Encontrar Cosméticos</div>
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label class="form-label">Produto do Catálogo</label>
+            <select id="select-produto" class="form-control">
+                <option value="">Procure um item...</option>
+                {% for p in produtos %}
+                    {% if p.situacao == 'Ativo' %}
+                    <option value="{{ p.id }}" data-nome="{{ p.nome }}" data-preco="{{ p.preco_venda }}" data-estoque="{{ p.quantidade_estoque }}">
+                        {{ p.nome }} (Estoque: {{ p.quantidade_estoque }} un) - R$ {{ "%.2f"|format(p.preco_venda) }}
+                    </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label class="form-label">Quantidade</label>
+            <input type="number" id="input-quantidade" class="form-control" min="1" value="1">
+        </div>
+        <button type="button" id="btn-adicionar-produto" class="btn btn-success" style="width: 100%; padding: 12px; font-weight: 700;">Inserir no Carrinho</button>
+    </div>
+</div>
 
-        <div style="margin-top: 30px; border-top: 2px dashed var(--border-color); padding-top: 15px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+<div class="data-table-container" style="width: 100%; overflow-x: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border-color);">
+    <div style="font-weight: 700; font-size: 16px; margin-bottom: 15px; color: var(--text-main); padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+        🛒 Itens Adicionados ao Pedido
+    </div>
+    <table class="data-table" style="min-width: 600px;">
+        <thead>
+            <tr>
+                <th style="width: 45%;">Descrição do Produto</th>
+                <th style="width: 10%;">Qtd</th>
+                <th style="width: 15%;">Preço Unitário</th>
+                <th style="width: 15%;">Subtotal</th>
+                <th style="width: 15%; text-align: center;">Ações</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-carrinho">
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                    Nenhum cosmético inserido no carrinho de compras até o momento.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 25px; border-top: 2px dashed var(--border-color); padding-top: 20px; display: flex; justify-content: flex-end;">
+        <div style="width: 100%; max-width: 320px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">
                 <span>Total Bruto:</span>
-                <strong id="render-total-bruto">R$ 0,00</strong>
+                <strong id="render-total-bruto" style="color: var(--text-main);">R$ 0,00</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 18px; color: var(--primary-color);">
+            <div style="display: flex; justify-content: space-between; font-size: 18px; color: var(--primary-color); border-top: 1px solid var(--border-color); padding-top: 8px;">
                 <span>Total Líquido:</span>
                 <strong id="render-total-liquido">R$ 0,00</strong>
             </div>

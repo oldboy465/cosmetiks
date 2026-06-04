@@ -15,9 +15,18 @@ class VendaService:
         self.estoque_repo = EstoqueRepository()
         self.estoque_service = EstoqueService()
 
-    def criar_venda(self, revendedor_id, cliente_id, produtos_lista, desconto_valor, desconto_percentual, forma_pagamento, situacao, qtd_parcelas=1):
+    def criar_venda(self, revendedor_id, cliente_id, produtos_lista, desconto_valor, desconto_percentual, forma_pagamento, situacao, qtd_parcelas=1, data_venda_escolhida=None):
         if not produtos_lista or len(produtos_lista) == 0:
             raise ValueError("Uma venda deve conter pelo menos um produto.")
+
+        # Conversão estruturada da data escolhida pelo usuário nativo do front-end
+        if data_venda_escolhida:
+            try:
+                data_final_venda = datetime.strptime(data_venda_escolhida, '%Y-%m-%d')
+            except ValueError:
+                data_final_venda = datetime.utcnow()
+        else:
+            data_final_venda = datetime.utcnow()
 
         valor_bruto = Decimal('0.00')
         itens_para_salvar = []
@@ -55,7 +64,7 @@ class VendaService:
         nova_venda = Venda(
             revendedor_id=revendedor_id,
             cliente_id=cliente_id,
-            data_venda=datetime.utcnow(),
+            data_venda=data_final_venda,
             valor_total=valor_liquido,
             desconto_valor=desc_v,
             desconto_percentual=desc_p,
@@ -78,7 +87,7 @@ class VendaService:
             self.estoque_service.registrar_movimentacao(
                 revendedor_id=revendedor_id,
                 produto_id=item['produto_id'],
-                type='Saida',
+                tipo='Saida',
                 motivo='Venda',
                 quantidade=item['quantidade'],
                 venda_id=nova_venda.id,
@@ -90,7 +99,7 @@ class VendaService:
             valor_parc = valor_liquido / Decimal(str(parcelas_n))
             
             for i in range(1, parcelas_n + 1):
-                venc = (datetime.utcnow() + timedelta(days=30 * i)).date()
+                venc = (data_final_venda + timedelta(days=30 * i)).date()
                 p_status = 'Paga' if situacao == 'Pago' else 'Aberta'
                 
                 parc = Parcelamento(
@@ -105,14 +114,14 @@ class VendaService:
                 db.session.add(parc)
 
         fin_status = 'Pago' if situacao == 'Pago' else ('Parcialmente pago' if situacao == 'Parcialmente pago' else 'Em aberto')
-        pag_data = datetime.utcnow() if situacao == 'Pago' else None
+        pag_data = data_final_venda if situacao == 'Pago' else None
         
         conta = Financeiro(
             revendedor_id=revendedor_id,
             cliente_id=cliente_id,
             venda_id=nova_venda.id,
             valor=valor_liquido,
-            vencimento=(datetime.utcnow() + timedelta(days=30)).date(),
+            vencimento=(data_final_venda + timedelta(days=30)).date(),
             pagamento=pag_data,
             status=fin_status
         )

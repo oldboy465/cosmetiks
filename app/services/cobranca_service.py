@@ -13,7 +13,7 @@ class CobrancaService:
         compra_str = data_compra.strftime('%d/%m/%Y') if (data_compra and hasattr(data_compra, 'strftime')) else 'recente'
         
         if modelo == 'Amigavel':
-            return f"Ola, {nome_cliente}! Passando para lembrar que a sua mudanca de visual com os nossos cosmeticos da compra de {compra_str} tem uma parcela de R$ {valor:.2f} com vencimento em {venc_str}. Qualquer duvida estou a disposicao!"
+            return f"Ola, {nome_cliente}! Passando para lembrar seu investimento com os nossos cosmeticos da compra de {compra_str} tem uma parcela de R$ {valor:.2f} com vencimento em {venc_str}. Qualquer duvida estou a disposicao!"
         elif modelo == 'Moderada':
             return f"Oi, {nome_cliente}. Tudo bem? Gostaria de verificar se deu tudo certo com o pagamento da sua fatura de R$ {valor:.2f}, vencida em {venc_str}. Se precisar do link PIX ou dados bancarios, so me avisar por aqui."
         elif modelo == 'Firme':

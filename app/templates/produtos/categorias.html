@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Categorias</h1>
+        <p style="color: var(--text-muted);">Organize seus produtos (ex: Perfumes, Maquiagem, Hidratantes)</p>
+    </div>
+</div>
+
+<div class="dashboard-row">
+    <div class="form-container">
+        <div style="font-weight: 700; margin-bottom: 15px;">Nova Categoria</div>
+        <form action="{{ url_for('categoria.nova') }}" method="POST">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="form-label">Nome da Categoria</label>
+                <input type="text" name="nome" class="form-control" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label">Descrição (Opcional)</label>
+                <textarea name="descricao" class="form-control" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Cadastrar Categoria</button>
+        </form>
+    </div>
+
+    <div class="data-table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Produtos Vinculados</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categorias %}
+                <tr>
+                    <td>
+                        <strong>{{ cat.nome }}</strong>
+                        <div style="font-size: 12px; color: var(--text-muted);">{{ cat.descricao or '' }}</div>
+                    </td>
+                    <td>{{ cat.produtos|length }}</td>
+                    <td>
+                        <form action="{{ url_for('categoria.excluir', id_categoria=cat.id) }}" method="POST" onsubmit="return confirm('Deseja excluir esta categoria?')">
+                            <button type="submit" class="btn btn-danger" style="padding: 5px 10px;">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

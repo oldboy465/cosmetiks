@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>{% if produto %}Editar{% else %}Novo{% endif %} Produto</h1>
+        <p style="color: var(--text-muted);">Informações técnicas e comerciais para controle de inventário</p>
+    </div>
+</div>
+
+<div class="form-container">
+    <form action="{% if produto %}{{ url_for('produto.editar', id_produto=produto.id) }}{% else %}{{ url_for('produto.novo') }}{% endif %}" method="POST">
+        <div class="form-grid">
+            <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label">Nome do Produto</label>
+                <input type="text" name="nome" class="form-control" value="{{ produto.nome if produto else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Código de Barras (Opcional)</label>
+                <input type="text" name="codigo_barras" class="form-control" value="{{ produto.codigo_barras if produto else '' }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Situação</label>
+                <select name="situacao" class="form-control">
+                    <option value="Ativo" {% if produto and produto.situacao == 'Ativo' %}selected{% endif %}>Ativo</option>
+                    <option value="Inativo" {% if produto and produto.situacao == 'Inativo' %}selected{% endif %}>Inativo</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Categoria</label>
+                <select name="categoria_id" class="form-control" required>
+                    {% for cat in categorias %}
+                    <option value="{{ cat.id }}" {% if produto and produto.categoria_id == cat.id %}selected{% endif %}>{{ cat.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Marca</label>
+                <select name="marca_id" class="form-control" required>
+                    {% for m in marcas %}
+                    <option value="{{ m.id }}" {% if produto and produto.marca_id == m.id %}selected{% endif %}>{{ m.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fornecedor Principal</label>
+                <select name="fornecedor_id" class="form-control" required>
+                    {% for f in fornecedores %}
+                    <option value="{{ f.id }}" {% if produto and produto.fornecedor_id == f.id %}selected{% endif %}>{{ f.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Preço de Custo (R$)</label>
+                <input type="number" step="0.01" name="preco_custo" class="form-control" value="{{ produto.preco_custo if produto else '0.00' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Preço de Venda (R$)</label>
+                <input type="number" step="0.01" name="preco_venda" class="form-control" value="{{ produto.preco_venda if produto else '0.00' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Estoque Mínimo (Alerta)</label>
+                <input type="number" name="estoque_minimo" class="form-control" value="{{ produto.estoque_minimo if produto else '0' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Data da Última Compra</label>
+                <input type="date" name="data_compra" class="form-control" value="{{ produto.data_compra if produto else '' }}">
+            </div>
+        </div>
+
+        <div class="form-group full-width" style="margin-top: 15px;">
+            <label class="form-label">Descrição Adicional</label>
+            <textarea name="descricao" class="form-control" rows="3">{{ produto.descricao if produto else '' }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('produto.index') }}" class="btn btn-danger" style="background: #ccc; color: #333;">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Salvar Produto</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Catálogo de Produtos</h1>
+        <p style="color: var(--text-muted);">Controle operacional de estoque e preços</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <a href="{{ url_for('estoque.movimentar') }}" class="btn btn-success">Movimentar Estoque</a>
+        <a href="{{ url_for('produto.novo') }}" class="btn btn-primary">Novo Produto</a>
+    </div>
+</div>
+
+<div class="data-table-container" style="margin-bottom: 20px; padding: 15px;">
+    <form method="GET" action="{{ url_for('produto.index') }}" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; align-items: end;">
+        <div class="form-group">
+            <label class="form-label">Nome do Produto</label>
+            <input type="text" name="nome" class="form-control" value="{{ request.args.get('nome', '') }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Categoria</label>
+            <select name="categoria_id" class="form-control">
+                <option value="">Todas</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.id }}" {% if request.args.get('categoria_id') == cat.id|string %}selected{% endif %}>{{ cat.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Marca</label>
+            <select name="marca_id" class="form-control">
+                <option value="">Todas</option>
+                {% for m in marcas %}
+                <option value="{{ m.id }}" {% if request.args.get('marca_id') == m.id|string %}selected{% endif %}>{{ m.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Fornecedor</label>
+            <select name="fornecedor_id" class="form-control">
+                <option value="">Todos</option>
+                {% for f in fornecedores %}
+                <option value="{{ f.id }}" {% if request.args.get('fornecedor_id') == f.id|string %}selected{% endif %}>{{ f.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </form>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Marca / Categoria</th>
+                <th>Estoque</th>
+                <th>Preço Custo</th>
+                <th>Preço Venda</th>
+                <th>Situação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in produtos %}
+            <tr>
+                <td>
+                    <strong>{{ p.nome }}</strong>
+                    <div style="font-size: 11px; color: var(--text-muted);">{{ p.codigo_barras or 'Sem código' }}</div>
+                </td>
+                <td>
+                    <div style="font-size: 13px;">{{ p.marca.nome }}</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">{{ p.categoria.nome }}</div>
+                </td>
+                <td>
+                    <span class="badge-stock {% if p.quantidade_estoque <= p.estoque_minimo %}critical{% else %}normal{% endif %}">
+                        {{ p.quantidade_estoque }} un
+                    </span>
+                </td>
+                <td>R$ {{ "%.2f"|format(p.preco_custo) }}</td>
+                <td>R$ {{ "%.2f"|format(p.preco_venda) }}</td>
+                <td><span class="badge-status {{ p.situacao|lower }}">{{ p.situacao }}</span></td>
+                <td>
+                    <div style="display: flex; gap: 5px;">
+                        <a href="{{ url_for('produto.editar', id_produto=p.id) }}" class="btn btn-primary" style="padding: 5px 10px; background: #6c757d;">Editar</a>
+                        <form action="{{ url_for('produto.excluir', id_produto=p.id) }}" method="POST" onsubmit="return confirm('Deseja remover este produto?')">
+                            <button type="submit" class="btn btn-danger" style="padding: 5px 10px;">Excluir</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

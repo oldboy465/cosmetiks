@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Painel de Controle</h1>
+        <p style="color: var(--text-muted);">Indicadores operacionais em tempo real para o ano {{ current_year }}</p>
+    </div>
+</div>
+
+<div class="panel-section-title">Indicadores Financeiros</div>
+<div class="dashboard-grid-summary">
+    <div class="kpi-card" style="border-left-color: var(--primary-color);">
+        <div class="title">Receita Bruta</div>
+        <div class="value" style="color: var(--primary-color);">{{ "%.2f"|format(kpis.receita_bruta) }}</div>
+    </div>
+    <div class="kpi-card" style="border-left-color: var(--success);">
+        <div class="title">Lucro Estimado</div>
+        <div class="value" style="color: var(--success);">{{ "%.2f"|format(kpis.lucro_estimado) }}</div>
+    </div>
+    <div class="kpi-card" style="border-left-color: #007bff;">
+        <div class="title">Ticket Médio</div>
+        <div class="value">{{ "%.2f"|format(kpis.ticket_medio) }}</div>
+    </div>
+</div>
+
+<div class="panel-section-title">Indicadores de Estoque</div>
+<div class="dashboard-grid-summary">
+    <div class="kpi-card" style="border-left-color: #6f42c1;">
+        <div class="title">Valor Investido (Custo)</div>
+        <div class="value">{{ "%.2f"|format(kpis.valor_investido) }}</div>
+    </div>
+    <div class="kpi-card" style="border-left-color: #fd7e14;">
+        <div class="title">Valor Potencial de Venda</div>
+        <div class="value">{{ "%.2f"|format(kpis.valor_potencial) }}</div>
+    </div>
+    <div class="kpi-card" style="border-left-color: var(--warning);">
+        <div class="title">Estoque Baixo / Crítico</div>
+        <div class="value" style="color: var(--danger);">{{ kpis.estoque_baixo }}</div>
+    </div>
+</div>
+
+<div class="panel-section-title">Indicadores Operacionais de Clientes</div>
+<div class="dashboard-grid-summary">
+    <div class="kpi-card" style="border-left-color: #20c997;">
+        <div class="title">Clientes Ativos</div>
+        <div class="value">{{ kpis.clientes_ativos }}</div>
+    </div>
+    <div class="kpi-card" style="border-left-color: var(--danger);">
+        <div class="title">Inadimplentes</div>
+        <div class="value" style="color: var(--danger);">{{ kpis.clientes_inadimplentes }}</div>
+    </div>
+    <div class="kpi-card" style="border-left-color: #17a2b8;">
+        <div class="title">Total de Vendas</div>
+        <div class="value">{{ kpis.quantidade_vendas }}</div>
+    </div>
+</div>
+
+<div class="dashboard-row">
+    <div class="data-table-container">
+        <div style="font-weight: 700; margin-bottom: 15px;">Produtos Mais Vendidos</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Preço de Venda</th>
+                    <th>Status de Estoque</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prod in kpis.mais_vendidos %}
+                <tr>
+                    <td>{{ prod.nome }}</td>
+                    <td>R$ {{ "%.2f"|format(prod.preco_venda) }}</td>
+                    <td>
+                        <span class="badge-stock {% if prod.quantidade_estoque <= prod.estoque_minimo %}critical{% else %}normal{% endif %}">
+                            {{ prod.quantidade_estoque }} un
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="data-table-container">
+        <div style="font-weight: 700; margin-bottom: 15px;">Avisos de Giro Mínimo</div>
+        <div class="ranking-list">
+            {% for prod in kpis.menos_vendidos %}
+            <div class="ranking-item">
+                <div class="product-info">
+                    <span class="product-name">{{ prod.nome }}</span>
+                    <span class="product-meta">Estoque atual: {{ prod.quantidade_estoque }}</span>
+                </div>
+                <span class="product-value negative">Giro Baixo</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

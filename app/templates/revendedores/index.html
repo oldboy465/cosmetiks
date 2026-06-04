@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Cadastro de Revendedores</h1>
+        <p style="color: var(--text-muted);">Painel Administrativo para Gerenciamento de Entidades de Negócio</p>
+    </div>
+    <a href="{{ url_for('admin.novo_revendedor') }}" class="btn btn-primary">Novo Revendedor</a>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Nome Completo</th>
+                <th>CPF</th>
+                <th>Usuário</th>
+                <th>E-mail</th>
+                <th>Situação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rev in revendedores %}
+            <tr>
+                <td><strong>{{ rev.nome_completo }}</strong></td>
+                <td>{{ rev.cpf }}</td>
+                <td>{{ rev.usuario }}</td>
+                <td>{{ rev.email }}</td>
+                <td>
+                    <span class="badge-status {{ rev.situacao|lower }}">{{ rev.situacao }}</span>
+                </td>
+                <td>
+                    <form action="{{ url_for('admin.alterar_status', id_revendedor=rev.id) }}" method="POST" style="display: inline-flex; gap: 5px;">
+                        <select name="situacao" class="form-control" style="padding: 5px; font-size: 12px;" onchange="this.form.submit()">
+                            <option value="Ativo" {% if rev.situacao == 'Ativo' %}selected{% endif %}>Ativo</option>
+                            <option value="Inativo" {% if rev.situacao == 'Inativo' %}selected{% endif %}>Inativo</option>
+                            <option value="Bloqueado" {% if rev.situacao == 'Bloqueado' %}selected{% endif %}>Bloqueado</option>
+                        </select>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

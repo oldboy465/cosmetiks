@@ -1,0 +1,109 @@
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+    width: 100%;
+}
+
+.alert-toast {
+    padding: 16px 20px;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid #6c757d;
+    animation: slideIn 0.3s ease forwards;
+}
+
+.alert-toast.success { border-left-color: var(--success); }
+.alert-toast.danger { border-left-color: var(--danger); }
+.alert-toast.warning { border-left-color: var(--warning); }
+
+.alert-toast .close-toast {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+@keyframes slideIn {
+    from { transform: translateX(120%); }
+    to { transform: translateX(0); }
+}
+
+.form-container {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.form-control {
+    padding: 10px 14px;
+    border: 1px solid #eef2f5;
+    border-radius: 6px;
+    background-color: #f8fafc;
+    font-size: 14px;
+    color: var(--text-main);
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: #ffffff;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+.badge-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-status.ativo { background-color: #e6f7f1; color: var(--success); }
+.badge-status.inativo { background-color: #f1f3f5; color: var(--text-muted); }
+.badge-status.bloqueado { background-color: #ffe5e5; color: var(--danger); }
+.badge-status.pago { background-color: #e6f7f1; color: var(--success); }
+.badge-status.atrasado { background-color: #ffe5e5; color: var(--danger); }
+.badge-status.aberto { background-color: #fff9e6; color: #d48300; }

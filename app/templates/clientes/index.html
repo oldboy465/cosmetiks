@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Gestão de Clientes</h1>
+        <p style="color: var(--text-muted);">Relacionamento e histórico financeiro individualizado</p>
+    </div>
+    <a href="{{ url_for('cliente.novo') }}" class="btn btn-primary">Novo Cliente</a>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Contato</th>
+                <th>Compras</th>
+                <th>Total Comprado</th>
+                <th>Última Compra</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in clientes %}
+            <tr>
+                <td><strong>{{ item.dados.nome }}</strong></td>
+                <td>
+                    <div style="font-size: 13px;">{{ item.dados.telefone or '' }}</div>
+                    <div style="font-size: 12px; color: var(--success);">{{ item.dados.whatsapp or '' }}</div>
+                </td>
+                <td>{{ item.indicadores.quantidade_compras }}</td>
+                <td>R$ {{ "%.2f"|format(item.indicadores.valor_total_comprado) }}</td>
+                <td>{{ item.indicadores.ultima_compra.strftime('%d/%m/%Y') if item.indicadores.ultima_compra else 'Nenhuma' }}</td>
+                <td>
+                    <span class="badge-status {{ item.indicadores.status_financeiro|lower }}">
+                        {{ item.indicadores.status_financeiro }}
+                    </span>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="{{ url_for('cliente.editar', id_cliente=item.dados.id) }}" class="btn btn-primary" style="padding: 5px 10px; background: #6c757d;">Editar</a>
+                        <form action="{{ url_for('cliente.excluir', id_cliente=item.dados.id) }}" method="POST" onsubmit="return confirm('Excluir cliente e todo seu histórico?')">
+                            <button type="submit" class="btn btn-danger" style="padding: 5px 10px;">Excluir</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>{% if cliente %}Editar{% else %}Novo{% endif %} Cliente</h1>
+        <p style="color: var(--text-muted);">Cadastre informações de contato e entrega</p>
+    </div>
+</div>
+
+<div class="form-container">
+    <form action="{% if cliente %}{{ url_for('cliente.editar', id_cliente=cliente.id) }}{% else %}{{ url_for('cliente.novo') }}{% endif %}" method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Nome Completo</label>
+                <input type="text" name="nome" class="form-control" value="{{ cliente.nome if cliente else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Telefone</label>
+                <input type="text" name="telefone" class="form-control" value="{{ cliente.telefone if cliente else '' }}" oninput="Utils.mascararTelefone(this)">
+            </div>
+            <div class="form-group">
+                <label class="form-label">WhatsApp</label>
+                <input type="text" name="whatsapp" class="form-control" value="{{ cliente.whatsapp if cliente else '' }}" oninput="Utils.mascararTelefone(this)">
+            </div>
+            <div class="form-group">
+                <label class="form-label">E-mail</label>
+                <input type="email" name="email" class="form-control" value="{{ cliente.email if cliente else '' }}">
+            </div>
+        </div>
+
+        <div class="form-group full-width" style="margin-top: 15px;">
+            <label class="form-label">Endereço de Entrega</label>
+            <textarea name="endereco" class="form-control" rows="2">{{ cliente.endereco if cliente else '' }}</textarea>
+        </div>
+
+        <div class="form-group full-width" style="margin-top: 15px;">
+            <label class="form-label">Observações sobre o Cliente</label>
+            <textarea name="observacoes" class="form-control" rows="3">{{ cliente.observacoes if cliente else '' }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('cliente.index') }}" class="btn btn-danger" style="background: #ccc; color: #333;">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Salvar Cliente</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

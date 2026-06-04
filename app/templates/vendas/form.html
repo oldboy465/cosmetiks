@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Registrar Nova Venda</h1>
+        <p style="color: var(--text-muted);">Lançamento ágil com recálculo automático de estoque e financeiro</p>
+    </div>
+</div>
+
+<div class="dashboard-row" style="grid-template-columns: 1fr 1fr;">
+    <div class="form-container">
+        <div style="font-weight: 700; margin-bottom: 15px; color: var(--primary-color);">1. Adicionar Produtos</div>
+        <div class="form-grid" style="grid-template-columns: 2fr 1fr;">
+            <div class="form-group">
+                <label class="form-label">Produto</label>
+                <select id="select-produto" class="form-control">
+                    <option value="">Selecione um item do catálogo...</option>
+                    {% for p in produtos %}
+                        {% if p.situacao == 'Ativo' %}
+                        <option value="{{ p.id }}" data-nome="{{ p.nome }}" data-preco="{{ p.preco_venda }}" data-estoque="{{ p.quantidade_estoque }}">
+                            {{ p.nome }} (Dispo: {{ p.quantidade_estoque }} un) - R$ {{ "%.2f"|format(p.preco_venda) }}
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Qtd</label>
+                <input type="number" id="input-quantidade" class="form-control" min="1" value="1">
+            </div>
+        </div>
+        <button type="button" id="btn-adicionar-produto" class="btn btn-success" style="width: 100%; margin-top: 15px;">Inserir no Carrinho</button>
+
+        <div style="font-weight: 700; margin-bottom: 15px; margin-top: 30px; color: var(--primary-color);">2. Fechamento Comercial</div>
+        <form action="{{ url_for('venda.nova') }}" method="POST">
+            <input type="hidden" name="produtos_json" id="produtos_json" value="[]">
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="form-label">Cliente</label>
+                <select name="cliente_id" class="form-control" required>
+                    <option value="">Selecione o comprador...</option>
+                    {% for c in clientes %}
+                    <option value="{{ c.id }}">{{ c.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="form-group">
+                    <label class="form-label">Forma de Pagamento</label>
+                    <select name="forma_pagamento" class="form-control" required>
+                        <option value="PIX">PIX</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="Brinde">Brinde (Amostra)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Situação Inicial</label>
+                    <select name="situacao" class="form-control" required>
+                        <option value="Não pago">Não pago (Em aberto)</option>
+                        <option value="Parcialmente pago">Parcialmente pago</option>
+                        <option value="Pago">Pago à Vista</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-top: 15px;">
+                <div class="form-group">
+                    <label class="form-label">Desconto Nominal (R$)</label>
+                    <input type="number" step="0.01" name="desconto_valor" id="desconto_valor" class="form-control" value="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Desconto (%)</label>
+                    <input type="number" step="0.1" name="desconto_percentual" id="desconto_percentual" class="form-control" value="0.0">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label class="form-label">Dividir em quantas Parcelas?</label>
+                <input type="number" name="quantidade_parcelas" class="form-control" min="1" value="1" required>
+            </div>
+
+            <div class="form-actions" style="margin-top: 25px;">
+                <a href="{{ url_for('venda.index') }}" class="btn btn-danger" style="background: #ccc; color: #333;">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Concluir Venda</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="data-table-container">
+        <div style="font-weight: 700; margin-bottom: 15px;">Itens Selecionados</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Qtd</th>
+                    <th>Unitário</th>
+                    <th>Subtotal</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-carrinho">
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum cosmético no carrinho.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 30px; border-top: 2px dashed var(--border-color); padding-top: 15px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span>Total Bruto:</span>
+                <strong id="render-total-bruto">R$ 0,00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 18px; color: var(--primary-color);">
+                <span>Total Líquido:</span>
+                <strong id="render-total-liquido">R$ 0,00</strong>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vendas.js') }}"></script>
+{% endblock %}

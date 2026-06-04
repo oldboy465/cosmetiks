@@ -10,7 +10,7 @@ class AuthService:
         self.auditoria_repo = AuditoriaRepository()
 
     def autenticar(self, usuario, senha, ip_usuario):
-        if usuario == "admin" and senha == "AdminCosmetiKS2026!":
+        if usuario == "admin" and senha == "465465":
             session['usuario_logado'] = 'admin'
             session['is_admin'] = True
             session['revendedor_id'] = None

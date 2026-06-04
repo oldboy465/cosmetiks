@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Alerta de Estoque Baixo</h1>
+        <p style="color: var(--text-muted);">Produtos que atingiram ou estão abaixo do limite mínimo definido</p>
+    </div>
+</div>
+
+<div class="data-table-container">
+    {% if produtos %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Marca</th>
+                <th>Estoque Atual</th>
+                <th>Limite Mínimo</th>
+                <th>Situação</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in produtos %}
+            <tr>
+                <td><strong>{{ p.nome }}</strong></td>
+                <td>{{ p.marca.nome }}</td>
+                <td><span class="badge-stock critical">{{ p.quantidade_estoque }} un</span></td>
+                <td>{{ p.estoque_minimo }} un</td>
+                <td><span style="color: var(--danger); font-weight: 600;">Reposição Necessária</span></td>
+                <td>
+                    <a href="{{ url_for('estoque.movimentar') }}" class="btn btn-success" style="padding: 5px 10px;">Comprar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: var(--success); font-weight: 700;">
+        ✓ Todos os produtos estão com níveis de estoque saudáveis.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

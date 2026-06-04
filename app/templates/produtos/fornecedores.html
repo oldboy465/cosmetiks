@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Fornecedores</h1>
+        <p style="color: var(--text-muted);">Gerencie as origens de seus produtos e contatos comerciais</p>
+    </div>
+</div>
+
+<div class="dashboard-row">
+    <div class="form-container">
+        <div style="font-weight: 700; margin-bottom: 15px;">Novo Fornecedor</div>
+        <form action="{{ url_for('fornecedor.novo') }}" method="POST">
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label">Nome/Razão Social</label>
+                <input type="text" name="nome" class="form-control" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label">WhatsApp</label>
+                <input type="text" name="whatsapp" class="form-control" oninput="Utils.mascararTelefone(this)">
+            </div>
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label">E-mail</label>
+                <input type="email" name="email" class="form-control">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label class="form-label">Observações</label>
+                <textarea name="observacoes" class="form-control" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Salvar Fornecedor</button>
+        </form>
+    </div>
+
+    <div class="data-table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Fornecedor</th>
+                    <th>Contato</th>
+                    <th>Produtos</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in fornecedores %}
+                <tr>
+                    <td><strong>{{ f.nome }}</strong></td>
+                    <td>
+                        <div style="font-size: 13px;">{{ f.whatsapp or f.telefone or 'Sem fone' }}</div>
+                        <div style="font-size: 11px;">{{ f.email or '' }}</div>
+                    </td>
+                    <td>{{ f.produtos|length }} itens</td>
+                    <td>
+                        <form action="{{ url_for('fornecedor.excluir', id_fornecedor=f.id) }}" method="POST" onsubmit="return confirm('Excluir fornecedor?')">
+                            <button type="submit" class="btn btn-danger" style="padding: 5px 10px;">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

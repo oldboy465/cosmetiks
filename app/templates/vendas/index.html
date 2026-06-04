@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Histórico de Vendas</h1>
+        <p style="color: var(--text-muted);">Controle de saídas comerciais e status de faturamento</p>
+    </div>
+    <a href="{{ url_for('venda.nova') }}" class="btn btn-primary">Nova Venda</a>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID Venda</th>
+                <th>Data / Hora</th>
+                <th>Cliente</th>
+                <th>Forma de Pagamento</th>
+                <th>Valor Líquido</th>
+                <th>Situação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vendas %}
+            <tr>
+                <td>#{{ v.id }}</td>
+                <td>{{ v.data_venda.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td><strong>{{ v.cliente.nome }}</strong></td>
+                <td>{{ v.forma_pagamento }}</td>
+                <td><strong>R$ {{ "%.2f"|format(v.valor_total) }}</strong></td>
+                <td>
+                    <span class="badge-status {{ v.situacao|lower|replace(' ', '-') }}">
+                        {{ v.situacao }}
+                    </span>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 5px;">
+                        <a href="{{ url_for('venda.detalhes', id_venda=v.id) }}" class="btn btn-primary" style="padding: 5px 10px; background: #6c757d;">Detalhes</a>
+                        <form action="{{ url_for('venda.excluir', id_venda=v.id) }}" method="POST" onsubmit="return confirm('Esta ação excluirá a venda, o lançamento financeiro e retornará os itens ao estoque automaticamente. Confirmar?')">
+                            <button type="submit" class="btn btn-danger" style="padding: 5px 10px;">Excluir</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

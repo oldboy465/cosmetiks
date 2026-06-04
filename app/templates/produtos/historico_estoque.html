@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Histórico de Movimentações</h1>
+        <p style="color: var(--text-muted);">Trilha completa de entradas, saídas e ajustes de estoque</p>
+    </div>
+    <a href="{{ url_for('estoque.movimentar') }}" class="btn btn-primary">Nova Movimentação</a>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Data/Hora</th>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Motivo</th>
+                <th>Quantidade</th>
+                <th>Observações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mov in movimentacoes %}
+            <tr>
+                <td>{{ mov.data_movimentacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td><strong>{{ mov.produto.nome }}</strong></td>
+                <td>
+                    <span class="badge-status {% if mov.tipo == 'Entrada' %}pago{% else %}atrasado{% endif %}">
+                        {{ mov.tipo }}
+                    </span>
+                </td>
+                <td>{{ mov.motivo }}</td>
+                <td><strong>{{ mov.quantidade }} un</strong></td>
+                <td><small>{{ mov.observacoes or '-' }}</small></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

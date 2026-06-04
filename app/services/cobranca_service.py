@@ -23,7 +23,7 @@ class CobrancaService:
     def registrar_disparo_cobranca(self, revendedor_id, financeiro_id, modelo, mensagem_customizada=None):
         conta = self.financeiro_repo.get_by_id_and_revendedor(financeiro_id, revendedor_id)
         if not conta:
-            raise ValueError("Lancamento financeiro nao localizado.")
+            raise ValueError("Lancamento financeiro nao localizado")
 
         msg = mensagem_customizada if mensagem_customizada else self.gerar_template_mensagem(
             modelo, conta.venda.cliente.nome, conta.valor, conta.vencimento, conta.venda.data_venda

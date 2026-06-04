@@ -1,4 +1,4 @@
-from flask import Blueprint, render_url_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.services.auth_service import AuthService
 
 auth_bp = Blueprint('auth', __name__)

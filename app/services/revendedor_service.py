@@ -1,6 +1,7 @@
 from app.repositories.revendedor_repository import RevendedorRepository
 from app.models.revendedor import Revendedor
 from werkzeug.security import generate_password_hash
+from datetime import datetime
 
 class RevendedorService:
     def __init__(self):
@@ -16,10 +17,14 @@ class RevendedorService:
 
         hash_senha = generate_password_hash(dados.get('senha'))
         
+        # Correção operacional: Tratamento e conversão da String HTML para objeto date Python
+        dt_nasc = dados.get('data_nascimento')
+        data_nascimento_convertida = datetime.strptime(dt_nasc, '%Y-%m-%d').date() if dt_nasc else None
+        
         novo_revendedor = Revendedor(
             nome_completo=dados.get('nome_completo'),
             cpf=dados.get('cpf'),
-            data_nascimento=dados.get('data_nascimento'),
+            data_nascimento=data_nascimento_convertida,
             sexo=dados.get('sexo'),
             telefone=dados.get('telefone'),
             whatsapp=dados.get('whatsapp'),
@@ -57,6 +62,10 @@ class RevendedorService:
         revendedor.cidade = dados.get('cidade', revendedor.cidade)
         revendedor.estado = dados.get('estado', revendedor.estado)
         revendedor.observacoes = dados.get('observacoes', revendedor.observacoes)
+
+        if dados.get('data_nascimento'):
+            dt_nasc = dados.get('data_nascimento')
+            revendedor.data_nascimento = datetime.strptime(dt_nasc, '%Y-%m-%d').date() if dt_nasc else None
 
         if dados.get('senha'):
             revendedor.senha_criptografada = generate_password_hash(dados.get('senha'))

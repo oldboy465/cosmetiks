@@ -1,5 +1,5 @@
 from app import create_app, db
-from flask_migrate import Migrate
+import app.models  # Garante que todas as tabelas sejam carregadas no Metadata do SQLAlchemy
 import sys
 
 # Script de gerenciamento de banco de dados e utilitários de CLI
@@ -9,7 +9,7 @@ def init_db():
     """Inicializa o banco de dados e cria as tabelas baseadas nos modelos."""
     with app.app_context():
         db.create_all()
-        print("Banco de dados CosmetiKS inicializado com sucesso.")
+        print("Banco de dados CosmetiKS inicializado com sucesso com todas as tabelas.")
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'init':

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-panel">
+    <div>
+        <h1>Central de Relatórios Gerenciais</h1>
+        <p style="color: var(--text-muted);">Exportações consolidadas em formato estruturado XLSX para planilhas</p>
+    </div>
+</div>
+
+<div class="card-grid" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="kpi-card" style="border-left-color: #007bff; display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
+        <div>
+            <div class="title" style="color: #007bff; font-weight: 700;">Relatório de Produtos</div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">Exportação completa do catálogo operacional: saldos atuais de estoque, estoque mínimo de segurança, preços de custo e de venda praticados.</p>
+        </div>
+        <a href="{{ url_for('relatorio.exportar_xlsx', modulo='produtos') }}" class="btn btn-primary" style="background: #007bff; text-align: center; margin-top: 15px; font-size: 13px;">Exportar Planilha (.XLSX)</a>
+    </div>
+
+    <div class="kpi-card" style="border-left-color: var(--primary-color); display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
+        <div>
+            <div class="title" style="color: var(--primary-color); font-weight: 700;">Relatório de Vendas</div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">Histórico analítico de transações comerciais. Inclui dados consolidados das vendas por período, formas de pagamento utilizadas e faturamento bruto líquido.</p>
+        </div>
+        <a href="{{ url_for('relatorio.exportar_xlsx', modulo='vendas') }}" class="btn btn-primary" style="text-align: center; margin-top: 15px; font-size: 13px;">Exportar Planilha (.XLSX)</a>
+    </div>
+
+    <div class="kpi-card" style="border-left-color: var(--danger); display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
+        <div>
+            <div class="title" style="color: var(--danger); font-weight: 700;">Relatório Financeiro</div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">Fluxo de contas a receber e inadimplência. Relação nominal de faturas em aberto, parcelas vencidas, histórico de pagamentos e liquidações parciais.</p>
+        </div>
+        <a href="{{ url_for('relatorio.exportar_xlsx', modulo='financeiro') }}" class="btn btn-danger" style="text-align: center; margin-top: 15px; font-size: 13px;">Exportar Planilha (.XLSX)</a>
+    </div>
+</div>
+{% endblock %}

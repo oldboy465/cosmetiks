@@ -15,6 +15,11 @@ class Venda(db.Model):
     situacao = db.Column(db.String(30), default='Não pago', nullable=False)
     forma_pagamento = db.Column(db.String(50), nullable=False)
     
+    # Relacionamentos explícitos para mapeamento de propriedades no ecossistema
+    cliente = db.relationship('Cliente', backref='vendas', lazy=True)
+    revendedor = db.relationship('Revendedor', backref='vendas', lazy=True)
+    
+    # Lógicas de amarração em cascata operacional
     itens = db.relationship('ItemVenda', backref='venda', cascade='all, delete-orphan', lazy=True)
     parcelas = db.relationship('Parcelamento', backref='venda', cascade='all, delete-orphan', lazy=True)
     financeiro = db.relationship('Financeiro', backref='venda', cascade='all, delete-orphan', lazy=True)
@@ -30,3 +35,5 @@ class ItemVenda(db.Model):
     quantidade = db.Column(db.Integer, nullable=False)
     valor_unitario = db.Column(db.Numeric(10, 2), nullable=False)
     valor_total = db.Column(db.Numeric(10, 2), nullable=False)
+    
+    produto = db.relationship('Produto', lazy=True)

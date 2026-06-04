@@ -12,15 +12,15 @@
 <div class="dashboard-grid-summary">
     <div class="kpi-card" style="border-left-color: var(--primary-color);">
         <div class="title">Receita Bruta</div>
-        <div class="value" style="color: var(--primary-color);">{{ "%.2f"|format(kpis.receita_bruta) }}</div>
+        <div class="value" style="color: var(--primary-color);">R$ {{ "{:,.2f}".format(kpis.receita_bruta).replace(',', 'X').replace('.', ',').replace('X', '.') }}</div>
     </div>
     <div class="kpi-card" style="border-left-color: var(--success);">
         <div class="title">Lucro Estimado</div>
-        <div class="value" style="color: var(--success);">{{ "%.2f"|format(kpis.lucro_estimado) }}</div>
+        <div class="value" style="color: var(--success);">R$ {{ "{:,.2f}".format(kpis.lucro_estimado).replace(',', 'X').replace('.', ',').replace('X', '.') }}</div>
     </div>
     <div class="kpi-card" style="border-left-color: #007bff;">
         <div class="title">Ticket Médio</div>
-        <div class="value">{{ "%.2f"|format(kpis.ticket_medio) }}</div>
+        <div class="value">R$ {{ "{:,.2f}".format(kpis.ticket_medio).replace(',', 'X').replace('.', ',').replace('X', '.') }}</div>
     </div>
 </div>
 
@@ -28,11 +28,11 @@
 <div class="dashboard-grid-summary">
     <div class="kpi-card" style="border-left-color: #6f42c1;">
         <div class="title">Valor Investido (Custo)</div>
-        <div class="value">{{ "%.2f"|format(kpis.valor_investido) }}</div>
+        <div class="value">R$ {{ "{:,.2f}".format(kpis.valor_investido).replace(',', 'X').replace('.', ',').replace('X', '.') }}</div>
     </div>
     <div class="kpi-card" style="border-left-color: #fd7e14;">
         <div class="title">Valor Potencial de Venda</div>
-        <div class="value">{{ "%.2f"|format(kpis.valor_potencial) }}</div>
+        <div class="value">R$ {{ "{:,.2f}".format(kpis.valor_potencial).replace(',', 'X').replace('.', ',').replace('X', '.') }}</div>
     </div>
     <div class="kpi-card" style="border-left-color: var(--warning);">
         <div class="title">Estoque Baixo / Crítico</div>
@@ -71,7 +71,7 @@
                 {% for prod in kpis.mais_vendidos %}
                 <tr>
                     <td>{{ prod.nome }}</td>
-                    <td>R$ {{ "%.2f"|format(prod.preco_venda) }}</td>
+                    <td>R$ {{ "{:,.2f}".format(prod.preco_venda).replace(',', 'X').replace('.', ',').replace('X', '.') }}</td>
                     <td>
                         <span class="badge-stock {% if prod.quantidade_estoque <= prod.estoque_minimo %}critical{% else %}normal{% endif %}">
                             {{ prod.quantidade_estoque }} un

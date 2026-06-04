@@ -3,19 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Premium - {{ saas_name }}</title>
+    <title>Login Corporativo — {{ saas_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
 <body class="auth-body">
 
     <div class="auth-container">
-        <div class="auth-logo">{{ saas_name }}</div>
-        <div class="auth-subtitle">Ecosistema de Gestão de Alto Desempenho para Cosméticos</div>
+        <div class="auth-header">
+            <div class="auth-logo">{{ saas_name }}</div>
+            <div class="auth-subtitle">Ecossistema Digital de Alta Performance para Gestão de Cosméticos</div>
+        </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="auth-alert">{{ message }}</div>
+                    <div class="auth-alert">
+                        {{ message }}
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
@@ -23,15 +27,19 @@
         <form action="{{ url_for('auth.login') }}" method="POST" class="auth-form">
             <div class="auth-group">
                 <label class="auth-label">Usuário Corporativo</label>
-                <input type="text" name="usuario" class="auth-input" placeholder="Seu nome de usuário" required autocomplete="off" autofocus>
+                <div class="auth-input-wrapper">
+                    <input type="text" name="usuario" class="auth-input" placeholder="Insira seu login de acesso" required autocomplete="off" autofocus>
+                </div>
             </div>
             
             <div class="auth-group">
-                <label class="auth-label">Senha de Acesso</label>
-                <input type="password" name="senha" class="auth-input" placeholder="••••••••" required>
+                <label class="auth-label">Chave de Segurança</label>
+                <div class="auth-input-wrapper">
+                    <input type="password" name="senha" class="auth-input" placeholder="••••••••••••" required>
+                </div>
             </div>
 
-            <button type="submit" class="btn-auth">Autenticar no Sistema</button>
+            <button type="submit" class="btn-auth">Acessar Console</button>
         </form>
     </div>
 

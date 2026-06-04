@@ -40,7 +40,8 @@ def nova():
         
         produtos_json = request.form.get('produtos_json')
         try:
-            produtos_lista = json.loads(produtos_json) if map else []
+            # Correção operacional da verificação do JSON de itens
+            produtos_lista = json.loads(produtos_json) if produtos_json else []
             venda_service.criar_venda(
                 revendedor_id=revendedor_id,
                 cliente_id=cliente_id,

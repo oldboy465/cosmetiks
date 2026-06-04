@@ -9,6 +9,56 @@
     <a href="{{ url_for('estoque.movimentar') }}" class="btn btn-primary">Nova Movimentação</a>
 </div>
 
+<div class="data-table-container" style="margin-bottom: 20px; padding: 20px;">
+    <form method="GET" action="{{ url_for('estoque.historico') }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) auto; gap: 15px; align-items: end;">
+        <div class="form-group">
+            <label class="form-label">Filtrar Produto</label>
+            <select name="produto_id" class="form-control">
+                <option value="">Todos</option>
+                {% for p in produtos %}
+                <option value="{{ p.id }}" {% if request.args.get('produto_id') == p.id|string %}selected{% endif %}>{{ p.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Fluxo (Tipo)</label>
+            <select name="tipo" class="form-control">
+                <option value="">Todos</option>
+                <option value="Entrada" {% if request.args.get('tipo') == 'Entrada' %}selected{% endif %}>Entrada</option>
+                <option value="Saida" {% if request.args.get('tipo') == 'Saida' %}selected{% endif %}>Saída</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Motivo Comercial</label>
+            <select name="motivo" class="form-control">
+                <option value="">Todos</option>
+                <option value="Compra" {% if request.args.get('motivo') == 'Compra' %}selected{% endif %}>Compra</option>
+                <option value="Ajuste" {% if request.args.get('motivo') == 'Ajuste' %}selected{% endif %}>Ajuste de Inventário</option>
+                <option value="Venda" {% if request.args.get('motivo') == 'Venda' %}selected{% endif %}>Venda</option>
+                <option value="Perda" {% if request.args.get('motivo') == 'Perda' %}selected{% endif %}>Perda / Avaria</option>
+                <option value="Devolucao" {% if request.args.get('motivo') == 'Devolucao' %}selected{% endif %}>Devolução</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Data Inicial</label>
+            <input type="date" name="data_inicio" class="form-control" value="{{ request.args.get('data_inicio', '') }}">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Data Final</label>
+            <input type="date" name="data_fim" class="form-control" value="{{ request.args.get('data_fim', '') }}">
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ url_for('estoque.historico') }}" class="btn" style="background: #eef2f5; color: var(--text-main); padding: 10px 15px;">Limpar</a>
+            <button type="submit" class="btn btn-primary" style="padding: 10px 25px;">Filtrar</button>
+        </div>
+    </form>
+</div>
+
 <div class="data-table-container">
     <table class="data-table">
         <thead>
@@ -27,16 +77,44 @@
                 <td>{{ mov.data_movimentacao.strftime('%d/%m/%Y %H:%M') }}</td>
                 <td><strong>{{ mov.produto.nome }}</strong></td>
                 <td>
-                    <span class="badge-status {% if mov.tipo == 'Entrada' %}pago{% else %}atrasado{% endif %}">
+                    <span class="badge-status {% if mov.tipo == 'Entrada' %}ativo{% else %}bloqueado{% endif %}">
                         {{ mov.tipo }}
                     </span>
                 </td>
-                <td>{{ mov.motivo }}</td>
+                <td><span style="font-weight: 600; color: var(--text-main);">{{ mov.motivo }}</span></td>
                 <td><strong>{{ mov.quantidade }} un</strong></td>
-                <td><small>{{ mov.observacoes or '-' }}</small></td>
+                <td><small style="color: var(--text-muted);">{{ mov.observacoes or '-' }}</small></td>
             </tr>
             {% endfor %}
+            {% if not movimentacoes %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                    Nenhuma movimentação de estoque localizada com os filtros aplicados.
+                </td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
+
+    {% if pagination.pages > 1 %}
+    <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+        <div style="color: var(--text-muted);">
+            Exibindo página <strong style="color: var(--text-main);">{{ pagination.page }}</strong> de <strong style="color: var(--text-main);">{{ pagination.pages }}</strong> (<strong style="color: var(--text-main);">{{ pagination.total }}</strong> movimentações no total)
+        </div>
+        <div style="display: flex; gap: 6px;">
+            {% if pagination.has_prev %}
+                <a href="{{ url_for('estoque.historico', page=pagination.prev_num, produto_id=request.args.get('produto_id',''), tipo=request.args.get('tipo',''), motivo=request.args.get('motivo',''), data_inicio=request.args.get('data_inicio',''), data_fim=request.args.get('data_fim','')) }}" class="btn" style="background: #eef2f5; color: var(--text-main); padding: 6px 14px; font-size: 13px;">Anterior</a>
+            {% else %}
+                <span class="btn" style="background: #f8fafc; color: #cbd5e1; padding: 6px 14px; font-size: 13px; cursor: not-allowed;">Anterior</span>
+            {% endif %}
+
+            {% if pagination.has_next %}
+                <a href="{{ url_for('estoque.historico', page=pagination.next_num, produto_id=request.args.get('produto_id',''), tipo=request.args.get('tipo',''), motivo=request.args.get('motivo',''), data_inicio=request.args.get('data_inicio',''), data_fim=request.args.get('data_fim','')) }}" class="btn btn-primary" style="padding: 6px 14px; font-size: 13px;">Próxima</a>
+            {% else %}
+                <span class="btn" style="background: #f8fafc; color: #cbd5e1; padding: 6px 14px; font-size: 13px; cursor: not-allowed;">Próxima</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

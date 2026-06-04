@@ -43,8 +43,19 @@
             <a href="{{ url_for('financeiro.contas_receber') }}" class="menu-item">Financeiro</a>
             <a href="{{ url_for('relatorio.index') }}" class="menu-item">Relatórios</a>
         {% endif %}
-        
-        <a href="{{ url_for('auth.logout') }}" class="menu-item" style="margin-top: auto; background-color: rgba(255,59,48,0.1); color: #ff3b30;">Sair</a>
+    </div>
+
+    <div class="topbar">
+        <div class="topbar-user-zone">
+            <div class="user-profile-meta">
+                {% set username_raw = session.get('usuario_logado', 'US') %}
+                <div class="user-avatar-circle">
+                    {{ username_raw[:2]|upper }}
+                </div>
+                <span class="user-display-name">{{ username_raw }}</span>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="btn-logout-topbar">Sair</a>
+        </div>
     </div>
 
     <div class="main-content">

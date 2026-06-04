@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - {{ saas_name }}</title>
+    <title>Login Premium - {{ saas_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
 <body class="auth-body">
 
     <div class="auth-container">
         <div class="auth-logo">{{ saas_name }}</div>
-        <div class="auth-subtitle">Gestão Operacional para Revendedoras de Cosméticos</div>
+        <div class="auth-subtitle">Ecosistema de Gestão de Alto Desempenho para Cosméticos</div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -22,16 +22,16 @@
 
         <form action="{{ url_for('auth.login') }}" method="POST" class="auth-form">
             <div class="auth-group">
-                <label class="auth-label">Usuário</label>
-                <input type="text" name="usuario" class="auth-input" required autocomplete="off" autofocus>
+                <label class="auth-label">Usuário Corporativo</label>
+                <input type="text" name="usuario" class="auth-input" placeholder="Seu nome de usuário" required autocomplete="off" autofocus>
             </div>
             
             <div class="auth-group">
-                <label class="auth-label">Senha</label>
-                <input type="password" name="senha" class="auth-input" required>
+                <label class="auth-label">Senha de Acesso</label>
+                <input type="password" name="senha" class="auth-input" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn-auth">Entrar no Sistema</button>
+            <button type="submit" class="btn-auth">Autenticar no Sistema</button>
         </form>
     </div>
 

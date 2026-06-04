@@ -1,35 +1,70 @@
 body.auth-body {
-    background: linear-gradient(135deg, #1a1a24 0%, #2d121e 100%);
+    background: radial-gradient(circle at 10% 20%, #1e1e2f 0%, #111119 90%);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     padding: 20px;
     margin: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Elementos estéticos de fundo para ambientar a marca de cosméticos */
+body.auth-body::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(214, 20, 90, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    top: -10%;
+    right: -10%;
+    z-index: 1;
+}
+
+body.auth-body::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(251, 176, 59, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+    bottom: -20%;
+    left: -10%;
+    z-index: 1;
 }
 
 .auth-container {
     width: 100%;
-    max-width: 420px;
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    max-width: 440px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 50px 40px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
     text-align: center;
+    z-index: 10;
+    transition: transform 0.3s ease;
 }
 
 .auth-logo {
-    font-size: 32px;
-    font-weight: 800;
-    color: #d4145a;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
+    font-size: 38px;
+    font-weight: 900;
+    background: linear-gradient(90deg, #d4145a 0%, #fbb03b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
 }
 
 .auth-subtitle {
     font-size: 14px;
-    color: #6c757d;
-    margin-bottom: 30px;
+    color: #a2a2b5;
+    margin-bottom: 35px;
+    font-weight: 500;
+    line-height: 1.5;
 }
 
 .auth-form {
@@ -37,67 +72,71 @@ body.auth-body {
 }
 
 .auth-group {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    position: relative;
 }
 
 .auth-label {
     display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #2b2b36;
-    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 
 .auth-input {
     width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #eef2f5;
-    border-radius: 8px;
-    background-color: #f8fafc;
-    color: #2b2b36;
+    padding: 14px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
     font-size: 15px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .auth-input:focus {
     outline: none;
     border-color: #d4145a;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(212, 20, 90, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 4px rgba(214, 20, 90, 0.15);
 }
 
 .btn-auth {
     width: 100%;
-    padding: 14px;
+    padding: 15px;
     background: linear-gradient(90deg, #d4145a 0%, #fbb03b 100%);
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     color: #ffffff;
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
-    transition: transform 0.1s ease, opacity 0.2s ease;
-    margin-top: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 15px;
+    box-shadow: 0 4px 15px rgba(214, 20, 90, 0.3);
 }
 
 .btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(214, 20, 90, 0.45);
     opacity: 0.95;
 }
 
 .btn-auth:active {
-    transform: scale(0.98);
+    transform: translateY(0);
 }
 
 .auth-alert {
-    padding: 12px 16px;
-    border-radius: 8px;
+    padding: 14px 18px;
+    border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     text-align: left;
-    background-color: #ffe5e5;
-    color: #ff3b30;
-    border-left: 4px solid #ff3b30;
+    background-color: rgba(255, 59, 48, 0.15);
+    color: #ff453a;
+    border-left: 4px solid #ff453a;
 }

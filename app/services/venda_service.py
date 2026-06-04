@@ -1,5 +1,6 @@
 from app.repositories.venda_repository import VendaRepository
 from app.repositories.produto_repository import ProdutoRepository
+from app.repositories.estoque_repository import EstoqueRepository
 from app.services.estoque_service import EstoqueService
 from app.models.venda import Venda, ItemVenda
 from app.models.financeiro import Financeiro
@@ -11,6 +12,7 @@ class VendaService:
     def __init__(self):
         self.venda_repo = VendaRepository()
         self.produto_repo = ProdutoRepository()
+        self.estoque_repo = EstoqueRepository()
         self.estoque_service = EstoqueService()
 
     def criar_venda(self, revendedor_id, cliente_id, produtos_lista, desconto_valor, desconto_percentual, forma_pagamento, situacao, qtd_parcelas=1):
@@ -76,7 +78,7 @@ class VendaService:
             self.estoque_service.registrar_movimentacao(
                 revendedor_id=revendedor_id,
                 produto_id=item['produto_id'],
-                tipo='Saida',
+                type='Saida',
                 motivo='Venda',
                 quantidade=item['quantidade'],
                 venda_id=nova_venda.id,

@@ -25,16 +25,11 @@ def visualizar_modelos(id_financeiro):
         flash('Registro financeiro nao encontrado.', 'danger')
         return redirect(url_for('financeiro.contas_receber'))
         
-    modelos = ['Amigavel', 'Moderada', 'Firme']
-    mensagens = {}
-    for m in modelos:
-        mensagens[m] = cobranca_service.gerar_template_mensagem(
-            modelo=m,
-            nome_cliente=conta.venda.cliente.nome,
-            valor=conta.valor,
-            data_vencimento=conta.vencimento,
-            data_compra=conta.venda.data_venda
-        )
+    # Removido o loop e o array de modelos. Passamos a gerar apenas a mensagem de cobrança inteligente e unificada.
+    mensagem_padrao = cobranca_service.gerar_template_mensagem(conta)
+    
+    # Injetado dentro de um dicionário para não quebrar a tela atual antes do template ser atualizado
+    mensagens = {'Padrao': mensagem_padrao}
         
     historico = cobranca_service.obter_historico_por_conta(revendedor_id, id_financeiro)
     return render_template('cobrancas/index.html', conta=conta, mensagens=mensagens, historico=historico)
@@ -43,10 +38,10 @@ def visualizar_modelos(id_financeiro):
 @revendedor_required
 def registrar_disparo(id_financeiro):
     revendedor_id = session.get('revendedor_id')
-    modelo = request.form.get('modelo')
+    # O modelo não é mais lido, pois a cobrança agora é unificada
     mensagem_customizada = request.form.get('mensagem')
     try:
-        cobranca_service.registrar_disparo_cobranca(revendedor_id, id_financeiro, modelo, mensagem_customizada)
+        cobranca_service.registrar_disparo_cobranca(revendedor_id, id_financeiro, mensagem_customizada)
         return jsonify({"status": "success", "message": "Disparo registrado na auditoria de cobranca."})
     except ValueError as e:
         return jsonify({"status": "error", "message": str(e)}), 400

@@ -15,6 +15,9 @@ class Venda(db.Model):
     situacao = db.Column(db.String(30), default='Não pago', nullable=False)
     forma_pagamento = db.Column(db.String(50), nullable=False)
     
+    observacoes = db.Column(db.Text, nullable=True)
+    data_prevista_pagamento = db.Column(db.Date, nullable=True)
+    
     # Relacionamentos explícitos para mapeamento de propriedades no ecossistema
     cliente = db.relationship('Cliente', backref='vendas', lazy=True)
     revendedor = db.relationship('Revendedor', backref='vendas', lazy=True)

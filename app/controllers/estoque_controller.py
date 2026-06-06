@@ -28,7 +28,7 @@ def geral():
     order_by = request.args.get('order_by', 'nome')
     order_dir = request.args.get('order_dir', 'asc')
     
-    # Dicionário de Filtros Dinâmicos
+    # Dicionário de Filtros Dinâmicos (AGORA CAPTURANDO O NOVO FILTRO)
     filters = {
         'nome': request.args.get('nome', '').strip(),
         'id': request.args.get('id', type=int),
@@ -39,6 +39,7 @@ def geral():
         'situacao': request.args.get('situacao', ''),
         'estoque_baixo': request.args.get('estoque_baixo') == '1',
         'estoque_zerado': request.args.get('estoque_zerado') == '1',
+        'somente_com_estoque': request.args.get('somente_com_estoque') == '1', # INJEÇÃO DO NOVO FILTRO AQUI
         'qtd_min': request.args.get('qtd_min', type=int) if request.args.get('qtd_min') else None,
         'qtd_max': request.args.get('qtd_max', type=int) if request.args.get('qtd_max') else None,
         'custo_min': request.args.get('custo_min', type=float) if request.args.get('custo_min') else None,

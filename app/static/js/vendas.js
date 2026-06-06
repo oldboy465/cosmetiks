@@ -2,6 +2,7 @@ let carrinhoProdutos = [];
 
 document.addEventListener("DOMContentLoaded", function () {
     const btnAdicionar = document.getElementById("btn-adicionar-produto");
+    
     if (btnAdicionar) {
         btnAdicionar.addEventListener("click", adicionarProdutoCarrinho);
     }
@@ -10,13 +11,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const inputDescPorcentagem = document.getElementById("desconto_percentual");
     const inputParcelas = document.getElementById("quantidade_parcelas");
     const inputDate = document.getElementById("data_venda");
+    
+    // --- NOVO CAMPO: Captura o observador da Data Prevista de Pagamento ---
+    const inputDatePrevista = document.getElementById("data_prevista_pagamento");
 
     if (inputDescValor) inputDescValor.addEventListener("input", recalcularTotaisVenda);
     if (inputDescPorcentagem) inputDescPorcentagem.addEventListener("input", recalcularTotaisVenda);
     if (inputParcelas) inputParcelas.addEventListener("input", recalcularTotaisVenda);
     if (inputDate) inputDate.addEventListener("input", recalcularTotaisVenda);
+    
+    // Anexa o gatilho de recalculo visual na data prevista também
+    if (inputDatePrevista) inputDatePrevista.addEventListener("input", recalcularTotaisVenda);
 
-    // Inicialização da Data com o dia de Hoje caso esteja vazio
+    // Inicialização da Data de Venda com o dia de Hoje caso esteja vazio
     if (inputDate && !inputDate.value) {
         const today = new Date();
         const yyyy = today.getFullYear();
@@ -48,6 +55,7 @@ function adicionarProdutoCarrinho() {
     }
 
     const itemExistente = carrinhoProdutos.find(item => item.produto_id === produtoId);
+
     if (itemExistente) {
         if ((itemExistente.quantidade + quantidade) > estoqueAtual) {
             alert(`A soma ultrapassa o estoque disponível (${estoqueAtual}).`);
@@ -76,6 +84,7 @@ function removerProdutoCarrinho(produtoId) {
 
 function renderizarTabelaCarrinho() {
     const tbody = document.getElementById("tbody-carrinho");
+    
     if (!tbody) return;
 
     if (carrinhoProdutos.length === 0) {
@@ -105,7 +114,9 @@ function renderizarTabelaCarrinho() {
 
 function recalcularTotaisVenda() {
     let totalBruto = 0;
-    carrinhoProdutos.forEach(item => { totalBruto += item.valor_total; });
+    carrinhoProdutos.forEach(item => { 
+        totalBruto += item.valor_total; 
+    });
 
     const inputDescValor = document.getElementById("desconto_valor");
     const inputDescPorcentagem = document.getElementById("desconto_percentual");
@@ -139,6 +150,8 @@ function recalcularTotaisVenda() {
 function renderizarPrevisaoParcelas(totalLiquido, qtdParcelas) {
     const container = document.getElementById("render-preview-parcelas");
     const inputDate = document.getElementById("data_venda");
+    const inputDatePrevista = document.getElementById("data_prevista_pagamento");
+    
     if (!container) return;
 
     if (totalLiquido <= 0 || qtdParcelas <= 1 || !inputDate || !inputDate.value) {
@@ -152,12 +165,21 @@ function renderizarPrevisaoParcelas(totalLiquido, qtdParcelas) {
     
     let valorParcela = totalLiquido / qtdParcelas;
     
-    // Baseia o cálculo na data escolhida pelo revendedor
-    let dataBase = new Date(inputDate.value + 'T12:00:00');
+    // --- NOVA LÓGICA DE CÁLCULO BASEADA NA DATA PREVISTA DE PAGAMENTO ---
+    // Se existir uma data prevista explícita informada, utilizamos ela como o gatilho da primeira parcela.
+    let dataReferenciaStr = (inputDatePrevista && inputDatePrevista.value) ? inputDatePrevista.value : inputDate.value;
+    let dataBase = new Date(dataReferenciaStr + 'T12:00:00');
 
     for (let i = 1; i <= qtdParcelas; i++) {
         let dataVencimento = new Date(dataBase.getTime());
-        dataVencimento.setDate(dataBase.getDate() + (30 * i));
+        
+        // Se a Data Prevista está preenchida, o primeiro pagamento é no próprio dia previsto.
+        if (inputDatePrevista && inputDatePrevista.value) {
+            dataVencimento.setDate(dataBase.getDate() + (30 * (i - 1)));
+        } else {
+            // Comportamento original: A primeira parcela é para daqui a 30 dias após a venda
+            dataVencimento.setDate(dataBase.getDate() + (30 * i));
+        }
         
         let dia = String(dataVencimento.getDate()).padStart(2, '0');
         let mes = String(dataVencimento.getMonth() + 1).padStart(2, '0');

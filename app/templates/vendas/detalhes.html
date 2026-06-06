@@ -28,6 +28,17 @@
             <div style="font-size: 12px; color: var(--text-muted);">SITUAÇÃO FINANCEIRA</div>
             <span class="badge-status {{ venda.situacao|lower|replace(' ', '-') }}">{{ venda.situacao }}</span>
         </div>
+        
+        <div style="margin-top: 15px;">
+            <div style="font-size: 12px; color: var(--text-muted);">PREVISÃO DE PAGAMENTO</div>
+            <strong>{{ venda.data_prevista_pagamento.strftime('%d/%m/%Y') if venda.data_prevista_pagamento else 'Não informada' }}</strong>
+        </div>
+        <div style="grid-column: span 3; margin-top: 15px;">
+            <div style="font-size: 12px; color: var(--text-muted);">OBSERVAÇÕES DA VENDA</div>
+            <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #eef2f5; margin-top: 5px; font-size: 14px; color: #333;">
+                {{ venda.observacoes or 'Nenhuma observação foi registrada para este pedido.' }}
+            </div>
+        </div>
     </div>
 </div>
 

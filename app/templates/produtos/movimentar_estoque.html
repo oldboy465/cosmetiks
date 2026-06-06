@@ -44,6 +44,15 @@
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
+            <label class="form-label">Data da Movimentação</label>
+            <input type="date" name="data_movimentacao" id="data_movimentacao" class="form-control" required>
+            <script>
+                // Script nativo para garantir que a data atual seja carregada por padrão
+                document.getElementById('data_movimentacao').valueAsDate = new Date();
+            </script>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
             <label class="form-label">Observações</label>
             <textarea name="observacoes" class="form-control" rows="3" placeholder="Ex: Referente à nota fiscal 123..."></textarea>
         </div>

@@ -8,7 +8,7 @@ class EstoqueService:
         self.estoque_repo = EstoqueRepository()
         self.produto_repo = ProdutoRepository()
 
-    def registrar_movimentacao(self, revendedor_id, produto_id, tipo, motivo, quantidade, observacoes=None, venda_id=None):
+    def registrar_movimentacao(self, revendedor_id, produto_id, tipo, motivo, quantidade, observacoes=None, venda_id=None, data_movimentacao=None):
         if int(quantidade) <= 0:
             raise ValueError("A quantidade da movimentacao deve ser maior que zero.")
         if tipo not in ['Entrada', 'Saida']:
@@ -27,6 +27,17 @@ class EstoqueService:
                 raise ValueError(f"Estoque insuficiente para o produto {produto.nome}. Disponivel: {produto.quantidade_estoque}.")
             produto.quantidade_estoque -= int(quantidade)
 
+        # Processamento e injeção da data informada manualmente
+        data_mov = datetime.utcnow()
+        if data_movimentacao:
+            if isinstance(data_movimentacao, str):
+                try:
+                    data_mov = datetime.strptime(data_movimentacao, '%Y-%m-%d')
+                except ValueError:
+                    pass
+            elif isinstance(data_movimentacao, datetime):
+                data_mov = data_movimentacao
+
         movimentacao = Estoque(
             revendedor_id=revendedor_id,
             produto_id=produto_id,
@@ -34,7 +45,7 @@ class EstoqueService:
             tipo=tipo,
             motivo=motivo,
             quantidade=int(quantidade),
-            data_movimentacao=datetime.utcnow(),
+            data_movimentacao=data_mov,
             observacoes=observacoes
         )
         

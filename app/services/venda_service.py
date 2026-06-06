@@ -15,7 +15,7 @@ class VendaService:
         self.estoque_repo = EstoqueRepository()
         self.estoque_service = EstoqueService()
 
-    def criar_venda(self, revendedor_id, cliente_id, produtos_lista, desconto_valor, desconto_percentual, forma_pagamento, situacao, qtd_parcelas=1, data_venda_escolhida=None):
+    def criar_venda(self, revendedor_id, cliente_id, produtos_lista, desconto_valor, desconto_percentual, forma_pagamento, situacao, qtd_parcelas=1, data_venda_escolhida=None, observacoes=None, data_prevista_pagamento=None):
         if not produtos_lista or len(produtos_lista) == 0:
             raise ValueError("Uma venda deve conter pelo menos um produto.")
 
@@ -27,6 +27,14 @@ class VendaService:
                 data_final_venda = datetime.utcnow()
         else:
             data_final_venda = datetime.utcnow()
+
+        # Injeção da Data Prevista de Pagamento para os cálculos de longo prazo
+        data_prev_pagto = None
+        if data_prevista_pagamento:
+            try:
+                data_prev_pagto = datetime.strptime(data_prevista_pagamento, '%Y-%m-%d').date()
+            except ValueError:
+                pass
 
         valor_bruto = Decimal('0.00')
         itens_para_salvar = []
@@ -69,7 +77,9 @@ class VendaService:
             desconto_valor=desc_v,
             desconto_percentual=desc_p,
             situacao=situacao,
-            forma_pagamento=forma_pagamento
+            forma_pagamento=forma_pagamento,
+            observacoes=observacoes,
+            data_prevista_pagamento=data_prev_pagto
         )
         self.venda_repo.add(nova_venda)
         self.venda_repo.commit()
@@ -91,7 +101,8 @@ class VendaService:
                 motivo='Venda',
                 quantidade=item['quantidade'],
                 venda_id=nova_venda.id,
-                observacoes=f"Venda id {nova_venda.id}"
+                observacoes=f"Venda id {nova_venda.id}",
+                data_movimentacao=data_final_venda
             )
 
         if qtd_parcelas and int(qtd_parcelas) > 0:
@@ -99,7 +110,12 @@ class VendaService:
             valor_parc = valor_liquido / Decimal(str(parcelas_n))
             
             for i in range(1, parcelas_n + 1):
-                venc = (data_final_venda + timedelta(days=30 * i)).date()
+                # Se há uma data prevista específica, ela serve como âncora para as parcelas
+                if data_prev_pagto:
+                    venc = data_prev_pagto + timedelta(days=30 * (i - 1))
+                else:
+                    venc = (data_final_venda + timedelta(days=30 * i)).date()
+                    
                 p_status = 'Paga' if situacao == 'Pago' else 'Aberta'
                 
                 parc = Parcelamento(
@@ -116,12 +132,15 @@ class VendaService:
         fin_status = 'Pago' if situacao == 'Pago' else ('Parcialmente pago' if situacao == 'Parcialmente pago' else 'Em aberto')
         pag_data = data_final_venda if situacao == 'Pago' else None
         
+        # Define o vencimento final do contas a receber baseado na prioridade da data prevista
+        venc_fin = data_prev_pagto if data_prev_pagto else (data_final_venda + timedelta(days=30)).date()
+        
         conta = Financeiro(
             revendedor_id=revendedor_id,
             cliente_id=cliente_id,
             venda_id=nova_venda.id,
             valor=valor_liquido,
-            vencimento=(data_final_venda + timedelta(days=30)).date(),
+            vencimento=venc_fin,
             pagamento=pag_data,
             status=fin_status
         )
@@ -151,6 +170,6 @@ class VendaService:
         self.venda_repo.commit()
         return True
 
-    def editar_venda(self, id_venda, revendedor_id, cliente_id, produtos_lista, desconto_valor, desconto_percentual, forma_pagamento, situacao, qtd_parcelas=1):
+    def editar_venda(self, id_venda, revendedor_id, cliente_id, produtos_lista, desconto_valor, desconto_percentual, forma_pagamento, situacao, qtd_parcelas=1, data_venda_escolhida=None, observacoes=None, data_prevista_pagamento=None):
         self.excluir_venda(id_venda, revendedor_id)
-        return self.criar_venda(revendedor_id, cliente_id, produtos_lista, desconto_valor, desconto_percentual, forma_pagamento, situacao, qtd_parcelas)
+        return self.criar_venda(revendedor_id, cliente_id, produtos_lista, desconto_valor, desconto_percentual, forma_pagamento, situacao, qtd_parcelas, data_venda_escolhida, observacoes, data_prevista_pagamento)

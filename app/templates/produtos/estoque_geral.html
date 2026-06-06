@@ -44,7 +44,7 @@
     <form method="GET" action="{{ url_for('estoque.geral') }}">
         <input type="hidden" name="order_by" value="{{ order_by }}">
         <input type="hidden" name="order_dir" value="{{ order_dir }}">
-        
+
         <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
             <div class="form-group">
                 <label class="form-label">ID Sistema</label>
@@ -129,6 +129,7 @@
             <div class="form-group" style="display: flex; flex-direction: row; gap: 15px; align-items: center; justify-content: flex-start; padding-top: 20px;">
                 <label style="font-size:12px; font-weight:600;"><input type="checkbox" name="estoque_baixo" value="1" {% if current_filters.get('estoque_baixo') == '1' %}checked{% endif %}> ⚠️ Apenas Críticos</label>
                 <label style="font-size:12px; font-weight:600;"><input type="checkbox" name="estoque_zerado" value="1" {% if current_filters.get('estoque_zerado') == '1' %}checked{% endif %}> ❌ Apenas Zerados</label>
+                <label style="font-size:12px; font-weight:600;"><input type="checkbox" name="somente_com_estoque" value="1" {% if current_filters.get('somente_com_estoque') == '1' %}checked{% endif %}> ✅ Somente com Estoque</label>
             </div>
         </div>
 
@@ -142,7 +143,7 @@
 <div class="data-table-container">
     {% macro sort_link(label, field) %}
         {% set dir = 'desc' if order_by == field and order_dir == 'asc' else 'asc' %}
-        <a href="{{ url_for('estoque.geral', order_by=field, order_dir=dir, id=current_filters.get('id',''), nome=current_filters.get('nome',''), codigo_barras=current_filters.get('codigo_barras',''), marca_id=current_filters.get('marca_id',''), categoria_id=current_filters.get('categoria_id',''), fornecedor_id=current_filters.get('fornecedor_id',''), situacao=current_filters.get('situacao',''), per_page=per_page, estoque_baixo=current_filters.get('estoque_baixo',''), estoque_zerado=current_filters.get('estoque_zerado',''), qtd_min=current_filters.get('qtd_min',''), qtd_max=current_filters.get('qtd_max',''), custo_min=current_filters.get('custo_min',''), custo_max=current_filters.get('custo_max',''), venda_min=current_filters.get('venda_min',''), venda_max=current_filters.get('venda_max','')) }}" style="text-decoration:none; color:inherit; font-weight:700;">
+        <a href="{{ url_for('estoque.geral', order_by=field, order_dir=dir, id=current_filters.get('id',''), nome=current_filters.get('nome',''), codigo_barras=current_filters.get('codigo_barras',''), marca_id=current_filters.get('marca_id',''), categoria_id=current_filters.get('categoria_id',''), fornecedor_id=current_filters.get('fornecedor_id',''), situacao=current_filters.get('situacao',''), per_page=per_page, estoque_baixo=current_filters.get('estoque_baixo',''), estoque_zerado=current_filters.get('estoque_zerado',''), somente_com_estoque=current_filters.get('somente_com_estoque',''), qtd_min=current_filters.get('qtd_min',''), qtd_max=current_filters.get('qtd_max',''), custo_min=current_filters.get('custo_min',''), custo_max=current_filters.get('custo_max',''), venda_min=current_filters.get('venda_min',''), venda_max=current_filters.get('venda_max','')) }}" style="text-decoration:none; color:inherit; font-weight:700;">
             {{ label }} {% if order_by == field %}{% if order_dir == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
         </a>
     {% endmacro %}
@@ -227,7 +228,7 @@
     <div class="form-container" style="width:100%; max-width:650px; position:relative; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
         <span onclick="fecharModal()" style="position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer; font-weight:700; color:var(--text-muted);">&times;</span>
         <h2 id="modal-titulo" style="margin-bottom: 20px; color: var(--primary-color);">Operação de Estoque</h2>
-        
+
         <form id="form-modal" method="POST" action="">
             <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
                 <div class="form-group" style="grid-column: span 2;">
@@ -306,52 +307,52 @@
 </div>
 
 <script>
-const modal = document.getElementById("modalEstoqueAvancado");
+    const modal = document.getElementById("modalEstoqueAvancado");
 
-function fecharModal() {
-    modal.style.display = "none";
-}
+    function fecharModal() {
+        modal.style.display = "none";
+    }
 
-function abrirModalCadastro() {
-    document.getElementById("form-modal").reset();
-    document.getElementById("modal-titulo").innerText = "Cadastrar Novo Item no Estoque";
-    document.getElementById("form-modal").action = "{{ url_for('estoque.geral_novo') }}";
-    document.getElementById("m-quantidade").disabled = false;
-    document.getElementById("btn-submit-modal").style.display = "inline-block";
-    
-    // Configura data padrão de hoje
-    const d = new Date();
-    document.getElementById("m-data_compra").value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    
-    modal.style.display = "flex";
-}
+    function abrirModalCadastro() {
+        document.getElementById("form-modal").reset();
+        document.getElementById("modal-titulo").innerText = "Cadastrar Novo Item no Estoque";
+        document.getElementById("form-modal").action = "{{ url_for('estoque.geral_novo') }}";
+        document.getElementById("m-quantidade").disabled = false;
+        document.getElementById("btn-submit-modal").style.display = "inline-block";
 
-function prepararEdicao(id, nome, barras, marcaId, catId, fornId, qtd, min, custo, venda, situacao, dtCompra, desc) {
-    document.getElementById("modal-titulo").innerText = `Editar Informações Operacionais — #${id}`;
-    document.getElementById("form-modal").action = `/estoque/geral/editar/${id}`;
-    
-    document.getElementById("m-nome").value = nome;
-    document.getElementById("m-codigo_barras").value = barras;
-    document.getElementById("m-marca").value = marcaId;
-    document.getElementById("m-categoria").value = catId;
-    document.getElementById("m-fornecedor").value = fornId;
-    document.getElementById("m-quantidade").value = qtd;
-    document.getElementById("m-quantidade").disabled = false; 
-    document.getElementById("m-minimo").value = min;
-    document.getElementById("m-custo").value = custo;
-    document.getElementById("m-venda").value = venda;
-    document.getElementById("m-situacao").value = situacao;
-    document.getElementById("m-data_compra").value = dtCompra;
-    document.getElementById("m-descricao").value = desc;
-    
-    document.getElementById("btn-submit-modal").style.display = "inline-block";
-    modal.style.display = "flex";
-}
+        // Configura data padrão de hoje
+        const d = new Date();
+        document.getElementById("m-data_compra").value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
-function visualizarDetalhes(id, nome, barras, marca, cat, forn, qtd, min, custo, venda, situacao, dtCompra, desc) {
-    prepararEdicao(id, nome, barras, 1, 1, 1, qtd, min, custo, venda, situacao, dtCompra, desc);
-    document.getElementById("modal-titulo").innerText = `Ficha Técnica Detalhada — #${id}`;
-    document.getElementById("btn-submit-modal").style.display = "none";
-}
+        modal.style.display = "flex";
+    }
+
+    function prepararEdicao(id, nome, barras, marcaId, catId, fornId, qtd, min, custo, venda, situacao, dtCompra, desc) {
+        document.getElementById("modal-titulo").innerText = `Editar Informações Operacionais — #${id}`;
+        document.getElementById("form-modal").action = `/estoque/geral/editar/${id}`;
+
+        document.getElementById("m-nome").value = nome;
+        document.getElementById("m-codigo_barras").value = barras;
+        document.getElementById("m-marca").value = marcaId;
+        document.getElementById("m-categoria").value = catId;
+        document.getElementById("m-fornecedor").value = fornId;
+        document.getElementById("m-quantidade").value = qtd;
+        document.getElementById("m-quantidade").disabled = false; 
+        document.getElementById("m-minimo").value = min;
+        document.getElementById("m-custo").value = custo;
+        document.getElementById("m-venda").value = venda;
+        document.getElementById("m-situacao").value = situacao;
+        document.getElementById("m-data_compra").value = dtCompra;
+        document.getElementById("m-descricao").value = desc;
+
+        document.getElementById("btn-submit-modal").style.display = "inline-block";
+        modal.style.display = "flex";
+    }
+
+    function visualizarDetalhes(id, nome, barras, marca, cat, forn, qtd, min, custo, venda, situacao, dtCompra, desc) {
+        prepararEdicao(id, nome, barras, 1, 1, 1, qtd, min, custo, venda, situacao, dtCompra, desc);
+        document.getElementById("modal-titulo").innerText = `Ficha Técnica Detalhada — #${id}`;
+        document.getElementById("btn-submit-modal").style.display = "none";
+    }
 </script>
 {% endblock %}
